@@ -1,0 +1,18 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+
+use Cpanel::Version ();
+
+unlink("/usr/local/cpanel/whostmgr/docroot/addon_plugins/ico-maldet.png");
+unlink("/var/cpanel/apps/securityadvisor.conf");
+
+system "/bin/rm", "-rf", "--", "/var/cpanel/addons/maldet/";
+system "/bin/rm", "-rf", "--", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet";
+
+if ( -x '/usr/local/cpanel/bin/unregister_appconfig' ) {
+    system '/usr/local/cpanel/bin/unregister_appconfig', "appconfig/securityadvisor.conf";
+}
+
+print "cPanel Linux Malware Detect uninstalled from WHM.\n";
+print "You will need to remove LMD manually\n";
+
+exit(0);

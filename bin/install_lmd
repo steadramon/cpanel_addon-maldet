@@ -1,0 +1,11 @@
+#!/bin/bash
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
+
+MYTMPDIR=$(mktemp -dt "$0")
+trap "rm -rf $MYTMPDIR" EXIT
+
+cd $MYTMPDIR
+wget http://www.rfxn.com/downloads/maldetect-current.tar.gz
+tar xfz maldetect-current.tar.gz
+cd maldetect-*
+./install.sh

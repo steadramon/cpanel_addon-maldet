@@ -1,0 +1,8 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+
+use Cpanel::Config::LoadWwwAcctConf ();
+
+$cref = Cpanel::Config::LoadWwwAcctConf::loadwwwacctconf();
+my $homematch = ( defined $cref->{'HOMEMATCH'} ? $cref->{'HOMEMATCH'} : ( -d '/home' ? '/home' : '/usr/home' ) );
+$homematch =~ s/\*//;
+print $homematch;

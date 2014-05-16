@@ -1,0 +1,74 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+# Copyright (c) 2013, cPanel, Inc.
+# All rights reserved.
+# http://cpanel.net
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# * Neither the name of the owner nor the names of its contributors may
+# be used to endorse or promote products derived from this software
+# without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+use Cpanel::Version ();
+
+if ( $Cpanel::Version::MAJORVERSION < 11.40 ) {
+    print "This addon requires 11.40 or later.\n";
+    exit(1);
+}
+
+mkdir( "/var/cpanel/addons", 0755 );
+mkdir( "/var/cpanel/addons/maldet", 0700 );
+
+system '/usr/bin/rsync', '-rlptD', 'bin', '/var/cpanel/addons/maldet/';
+
+if (! -e '/usr/local/sbin/maldet') {
+  if (-X "/var/cpanel/addons/maldet/bin/install_lmd") {
+    system '/var/cpanel/addons/maldet/bin/install_lmd';
+    if ($? != 0) {
+      print "LMD Install Script Failed?";
+      exit(1);
+    }
+  } else {
+      print "LMD Install Script Not Found?";
+      exit(1);
+  }
+} else {
+  print "LMD installed";
+}
+mkdir( "/usr/local/cpanel/whostmgr/docroot/cgi/addons", 0755 )if !-e "/usr/local/cpanel/whostmgr/docroot/cgi/addons";
+mkdir( "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet", 0700 );
+mkdir( "/var/cpanel/apps", 0755 );
+
+install( "-o", "root", "-g", "wheel", "-m" . "0700", "cgi/index.cgi", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/index.cgi" );
+install( "-o", "root", "-g", "wheel", "-m" . "0700", "version.txt", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/version.txt" );
+install( "-o", "root", "-g", "wheel", "-m" . "0755", "cron/daily", "/etc/cron.daily/maldet" );
+install( "-o", "root", "-g", "wheel", "-m" . "0644", "lmd.conf/ignore_file_ext", "/usr/local/maldetect/ignore_file_ext" );
+
+system "/usr/local/cpanel/bin/register_appconfig", "appconfig/maldet.conf";
+
+mkdir( "/usr/local/cpanel/whostmgr/docroot/addon_plugins", 0755 ) if !-e "/usr/local/cpanel/whostmgr/docroot/addon_plugins";
+install( "-o", "root", "-g", "wheel", "-m" . "0600", "icon/ico-maldet.png", "/usr/local/cpanel/whostmgr/docroot/addon_plugins/ico-maldet.png" );
+
+print "cPanel Linux Malware Detect installed into WHM.\n";
+
+exit(0);
+
+sub install {
+    system( "/usr/bin/install", @_ );
+}
