@@ -130,7 +130,7 @@ else {
 	if ($actv ne "") {
 		if ($actv =~ /^[\d\.]*$/) {
 			if ($actv > $myv) {
-				print "<tr><form action='$script' method='post'><td><input type='hidden' name='action' value='upgrade'><input type='submit' class='input' value='Upgrade cPanel Maldet'></td><td width='100%'><b>A new version of maldet (v$actv) is available. Upgrading will retain your settings<br><a href='https://raw.githubusercontent.com/steadramon/cpanel_addon-maldet/changelog.txt' target='_blank'>View ChangeLog</a></b></td></form></tr>\n";
+				print "<tr><form action='$script' method='post'><td><input type='hidden' name='action' value='upgrade'><input type='submit' class='input' value='Upgrade cPanel Maldet'></td><td width='100%'><b>A new version of maldet (v$actv) is available. Upgrading will retain your settings<br><a href='https://raw.githubusercontent.com/steadramon/cpanel_addon-maldet/master/changelog.txt' target='_blank'>View ChangeLog</a></b></td></form></tr>\n";
 			} else {
 				print "<tr><td colspan='2'>You appear to be running the latest version of maldet. An Upgrade button will appear here if a new version becomes available</td></tr>\n";
 			}
