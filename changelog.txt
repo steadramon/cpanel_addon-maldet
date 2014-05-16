@@ -1,0 +1,9 @@
+0.02 - 16 May 2014
+------------------
+
+Fixed upgrade process to clean upgrade properly
+
+0.01 - 16 May 2014
+------------------
+
+Initial release
