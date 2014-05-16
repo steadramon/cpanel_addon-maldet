@@ -62,7 +62,7 @@ if ($FORM{action} eq "upgrade") {
 		print "</pre>";
 		print "Tidying up...\n";
 		print "<pre style='font-family: Courier New, Courier; font-size: 12px'>";
-		system ("rm -Rfv /usr/src/cmc*");
+		system ("rm -Rfv /usr/src/cpanel_addon-maldet");
 		print "</pre>";
 		print "...All done.\n";
 	}
