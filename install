@@ -57,7 +57,7 @@ mkdir( "/var/cpanel/apps", 0755 );
 
 install( "-o", "root", "-g", "wheel", "-m" . "0700", "cgi/index.cgi", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/index.cgi" );
 install( "-o", "root", "-g", "wheel", "-m" . "0700", "version.txt", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/version.txt" );
-install( "-o", "root", "-g", "wheel", "-m" . "0755", "cron/daily", "/etc/cron.daily/maldet" );
+install( "-o", "root", "-g", "wheel", "-m" . "0755", "cron/daily", "/etc/cron.daily/cp-maldet" );
 install( "-o", "root", "-g", "wheel", "-m" . "0644", "lmd.conf/ignore_file_ext", "/usr/local/maldetect/ignore_file_ext" );
 
 system "/usr/local/cpanel/bin/register_appconfig", "appconfig/maldet.conf";
