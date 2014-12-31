@@ -18,7 +18,7 @@ sleep $(echo $RANDOM | cut -c1-3) >> /dev/null 2>&1
 
 # if were running inotify monitoring, send daily hit summary
 if [ "$(ps -A --user root -o "comm" | grep inotifywait)" ]; then
-        # /usr/local/maldetect/maldet --alert-daily >> /dev/null 2>&1
+        /usr/local/maldetect/maldet --alert-daily >> /dev/null 2>&1
 elif [ -d "/usr/local/cpanel" ] && [ -x "/var/cpanel/addons/maldet/bin/homematch" ]; then
         #cpanel
         HOMEMATCH=`/var/cpanel/addons/maldet/bin/homematch`
