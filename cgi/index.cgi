@@ -95,13 +95,44 @@ elsif ($FORM{action} eq "lmd_config") {
 elsif ($FORM{action} eq "savelmd_config") {
         &savelmd_config;
 }
+elsif ($FORM{action} eq "scan_user") {
+	&scan_user;
+}
 elsif ($FORM{action} eq "help") {
 	print "<h2>Testing</h2>";
 	print "<p align='center'><form action='$script' method='post'><input type='submit' class='input' value='Return'></form></p>\n";
 }
 else {
+	&index;
+}
+print "<p>&copy;2014 <a href='http://www.zen.co.uk/' target='_blank'>Zen Internet Ltd</a></p>\n";
+print "<pre style='font-family: Courier New, Courier; font-size: 12px'>maldet v$myv</pre>";
+# end main
+
+sub index {
+	my @users;
+	opendir (DIR, "/var/cpanel/users") or die $!;
+	while (my $user = readdir (DIR)) {
+		if ($user =~ /^\./) {next}
+		my (undef,undef,undef,undef,undef,undef,undef,$homedir,undef,undef) = getpwnam($user);
+		$homedir =~ /(.*)/;
+		$homedir = $1;
+		if ($homedir eq "") {next}
+		if (not -d "$homedir") {next}
+		push (@users, $user);
+        }
+	closedir (DIR);
+	@users = sort @users;
+
+
 	print "<table class='sortable' width='95%' align='center'>\n";
 	print "<tr><th align='left' colspan='2'>Linux Malware Detect Control (<u><a href='$script?action=help'>Help</a></u>)</th></tr>";
+	print "<tr class='tdshade2'><form action='$script' method='post'><td><input type='hidden' name='action' value='scan_user'> <select name='user' size='10'>";
+	foreach my $user (@users) {
+		print "<option value='$user'>$user</option>";
+        }
+	print "</select>";
+	print "</td><td width='100%'>You can scan a user public_html directory <input type='submit' class='input' value='Scan'></td></form></tr>\n";
 	print "<tr class='tdshade1'><form action='$script' method='post'><td><input type='hidden' name='action' value='last_report'><input type='submit' class='input' value='View Last Report'></td><td width='100%'>You can view the last report from LMD</td></form></tr>\n";
 	print "<tr class='tdshade2'><form action='$script' method='post'><td><input type='hidden' name='action' value='reports'><input type='submit' class='input' value='View Past Reports'></td><td width='100%'>You can view past reports from LMD</td></form></tr>\n";
 	print "</table><br>\n";
@@ -142,9 +173,6 @@ else {
 	}
 	print "</table><br>\n";
 }
-print "<p>&copy;2014 <a href='http://www.zen.co.uk/' target='_blank'>Zen Internet Ltd</a></p>\n";
-print "<pre style='font-family: Courier New, Courier; font-size: 12px'>maldet v$myv</pre>";
-# end main
 
 ###############################################################################
 sub lmd_config {
@@ -296,6 +324,21 @@ sub view_report {
         print "</textarea></td></tr></table></fieldset>\n";
        	print "</form>\n";
        	print "<p align='center'><form action='$script?action=reports' method='post'><input type='submit' class='input' value='Return'></form></p>\n";
+}
+
+sub scan_user {
+	my $user = $FORM{user};
+	my (undef,undef,undef,undef,undef,undef,undef,$homedir,undef,undef) = getpwnam($user);
+	$homedir .= "/public_html/";
+	print "Starting scan...<pre>";
+	$tmpDir = '/tmp/malwaredetect';
+	if (! -d $tmpDir ) {
+		mkpath($tmpDir, 0, 0077);
+	}
+	chdir $tmpDir;
+	print `/usr/local/sbin/maldet -b -a $homedir`;
+	print "</pre>";
+	print "<p align='center'><form action='$script' method='post'><input type='submit' class='input' value='Return'></form></p>\n";
 }
 
 ###############################################################################
