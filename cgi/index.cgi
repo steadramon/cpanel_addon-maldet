@@ -105,7 +105,7 @@ elsif ($FORM{action} eq "help") {
 else {
 	&index;
 }
-print "<p>&copy;2014 <a href='http://www.zen.co.uk/' target='_blank'>Zen Internet Ltd</a></p>\n";
+print "<p>&copy;2015 <a href='https://github.com/steadramon/cpanel_addon-maldet' target='_blank'>steadramon</a></p>\n";
 print "<pre style='font-family: Courier New, Courier; font-size: 12px'>maldet v$myv</pre>";
 # end main
 
