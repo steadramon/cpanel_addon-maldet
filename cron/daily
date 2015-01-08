@@ -1,6 +1,8 @@
 #!/bin/bash
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
+dir=`mktemp -d` && cd $dir
+
 # sleep for random value to give upstream a bit of headroom
 sleep $(echo $RANDOM | cut -c1-3) >> /dev/null 2>&1
 
@@ -24,3 +26,4 @@ elif [ -d "/usr/local/cpanel" ] && [ -x "/var/cpanel/addons/maldet/bin/homematch
         HOMEMATCH=`/var/cpanel/addons/maldet/bin/homematch`
         /usr/local/maldetect/maldet -b -r $HOMEMATCH?/?/public_html 2 >> /dev/null 2>&1
 fi
+rmdir $dir
