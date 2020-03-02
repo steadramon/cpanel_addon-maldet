@@ -1,0 +1,11 @@
+[% SET CPANEL.CPVAR.dprefix = "../" %]
+[%
+USE Uapi;
+USE JSON;
+
+SET maldet_report = Uapi.exec('Maldet', 'latest');
+
+%]
+<script>
+  window.location.replace("report.html?report_id=[% maldet_report.data.scanid %]");
+</script>

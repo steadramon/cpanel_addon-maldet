@@ -1,19 +1,25 @@
 #!/usr/local/cpanel/3rdparty/bin/perl
 
-use Cpanel::Version ();
-
 unlink("/usr/local/cpanel/whostmgr/docroot/addon_plugins/ico-maldet.png");
-unlink("/var/cpanel/apps/securityadvisor.conf");
+unlink("/var/cpanel/apps/maldet.conf");
 unlink("/etc/cron.daily/cp-maldet");
 
 system "/bin/rm", "-rf", "--", "/var/cpanel/addons/maldet/";
 system "/bin/rm", "-rf", "--", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet";
+system "/bin/rm", "-rf", "--", "/usr/local/cpanel/base/frontend/paper_lantern/maldet";
+system "/bin/rm", "-rf", "--", "/usr/local/cpanel/whostmgr/docroot/templates/maldet/";
+
+system "/bin/rm", "-f", "--", "/usr/local/cpanel/Cpanel/Plugins/Maldet.pm";
+system "/bin/rm", "-f", "--", "/usr/local/cpanel/Cpanel/API/Maldet.pm";
+system "/bin/rm", "-f", "--", "/usr/local/cpanel/Whostmgr/Maldet.pm";
 
 if ( -x '/usr/local/cpanel/bin/unregister_appconfig' ) {
     system '/usr/local/cpanel/bin/unregister_appconfig', "appconfig/maldet.conf";
 }
 
-print "cPanel Linux Malware Detect uninstalled from WHM.\n";
+system "/usr/local/cpanel/scripts/uninstall_plugin", "appconfig/maldet.tar.gz";
+
+print "cPanel Linux Malware Detect uninstalled from WHM & cPanel.\n";
 print "You will need to remove LMD manually\n";
 
 exit(0);

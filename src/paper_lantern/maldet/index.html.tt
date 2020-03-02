@@ -1,0 +1,46 @@
+[% SET CPANEL.CPVAR.dprefix = "../" %]
+[%
+USE Uapi;
+USE JSON;
+
+SET maldet_enabled = Uapi.exec('Maldet', 'enabled');
+
+SET maldet_reports = Uapi.exec('Maldet', 'reports');
+
+%]
+
+[% WRAPPER '_assets/master.html.tt'
+    page_title = locale.maketext('Linux Malware Detect')
+    app_key = 'maldet',
+-%]
+[% IF maldet_enabled.data == 1 %]
+<div class="body-content">
+    <p>Scan your home directory for Linux based malware.</p>
+    [% IF CPANEL.feature('maldet'); %]
+    <h2>Scan Homedir</h2>
+    <form action="scan.html">
+      <input type="submit" value="Start Scan" class="btn btn-primary">
+    </form>
+    <p><small>Please note you can only run a scan once per hour</small></p>
+    [% END %]
+    <h2>Recent Reports</h2>
+    <table class="table sortable">
+      <tr><th>Scan ID</th><th>Date</th><th>Files</th><th>Hits</th><th>Cleaned</th><th>Runtime</th></tr>
+    [% FOREACH report IN maldet_reports.data %]
+      <tr class="[% report.hits ? 'warning':'' %]">
+        <td><a title='View Report' href="report.html?report_id=[% report.scanid %]">[% report.scanid %]</a></td>
+        <td>[% report.date %]</td>
+        <td>[% report.files %]</td>
+        <td>[% report.hits %]</td>
+        <td>[% report.cleaned %]</td>
+        <td sorttable_customkey="[% report.runtime %]">[% report.runtime %]s</td>
+      </tr>
+    [% END %]
+    </table>
+</div>
+[% ELSE %]
+<div class="body-content">
+    <h2>Maldet user scanning is not enabled on this server.<h2>
+</div>
+[% END %]
+[% END #wrapper %]

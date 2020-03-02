@@ -1,0 +1,36 @@
+[%
+USE Whostmgr;
+USE JSON;
+
+WRAPPER 'master_templates/master.tmpl'
+        breadcrumbdata = {
+                previous = [
+                {
+                        name = "Home",
+                        url  = "/scripts/command?PFILE=main",
+                },
+                {
+                        name = "Plugins",
+                        url  = "/scripts/command?PFILE=Plugins",
+                },
+                ],
+                name = 'Linux Malware Detect',
+                url = '/cgi/addons/maldet/index.cgi',
+        },
+	skipsupport = 1,
+        theme='bootstrap',
+        hide_license_warnings = 1,
+
+%]
+<a href="?" class="btn btn-primary">Back</a>
+<h2>Config Editor - [% config_name %]</h2>
+<h3>[% fileid %]</h3>
+<form method="POST" action="index.cgi?cgiaction=save_config">
+<input type="hidden" name="config_filename" value="[% config_name %]">
+<textarea class="form-control" name="config_content" rows="20">
+[% config_str %]
+</textarea>
+<br>
+<input type="submit" class="btn btn-success" value="Save"/>
+</form>
+[% END %]

@@ -3,20 +3,10 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
 dir=`mktemp -d` && cd $dir
 
+trap "rm -rf $dir" EXIT
+
 # sleep for random value to give upstream a bit of headroom
 sleep $(echo $RANDOM | cut -c1-3) >> /dev/null 2>&1
-
-# clear quarantine/session/tmp data every 14 days
-/usr/sbin/tmpwatch 336 /usr/local/maldetect/tmp >> /dev/null 2>&1
-/usr/sbin/tmpwatch 336 /usr/local/maldetect/sess >> /dev/null 2>&1
-/usr/sbin/tmpwatch 336 /usr/local/maldetect/quarantine >> /dev/null 2>&1
-/usr/sbin/tmpwatch 336 /usr/local/maldetect/pub/*/ >> /dev/null 2>&1
-
-# check for new release version
-/usr/local/maldetect/maldet -d >> /dev/null 2>&1
-
-# check for new definition set
-/usr/local/maldetect/maldet -u >> /dev/null 2>&1
 
 # if were running inotify monitoring, send daily hit summary
 if [ "$(ps -A --user root -o "comm" | grep inotifywait)" ]; then
@@ -26,4 +16,3 @@ elif [ -d "/usr/local/cpanel" ] && [ -x "/var/cpanel/addons/maldet/bin/homematch
         HOMEMATCH=`/var/cpanel/addons/maldet/bin/homematch`
         /usr/local/maldetect/maldet -b -r $HOMEMATCH?/?/public_html 2 >> /dev/null 2>&1
 fi
-rmdir $dir

@@ -1,0 +1,105 @@
+[%
+USE Whostmgr;
+USE JSON;
+
+WRAPPER 'master_templates/master.tmpl'
+        breadcrumbdata = {
+                previous = [
+                {
+                        name = "Home",
+                        url  = "/scripts/command?PFILE=main",
+                },
+                {
+                        name = "Plugins",
+                        url  = "/scripts/command?PFILE=Plugins",
+                }
+                ],
+                name = 'Linux Malware Detect',
+                url = '/cgi/addons/maldet/index.cgi',
+        },
+	skipsupport = 1,
+        theme='bootstrap',
+        hide_license_warnings = 1,
+
+%]
+<div class="callout callout-info">
+Use the panels below to configure LMD.
+</div>
+<div class="row">
+  <div class="col-md-4">
+<p>
+<h4>Updates</h4>
+    <form method="POST" action="index.cgi?cgiaction=updatesigs">
+      <input type="submit" class="btn btn-primary" value="Update signatures">
+    </form>
+    <br/>
+    <form method="POST" action="index.cgi?cgiaction=updatelmd">
+      <input type="submit" class="btn btn-primary" value="Update LMD">
+    </form>
+</p>
+  </div>
+  <div class="col-md-4">
+<h4>Configs</h4>
+    <form method="POST" action="index.cgi?cgiaction=edit_config">
+      <select name="file">
+      [% FOREACH user IN config_files %]
+        <option value="[% user %]">[% user %]</option>
+      [% END %]
+      </select>
+      <input type="submit" class="btn btn-primary" value="Edit Config">
+    </form>
+
+    [% IF mdconfig.scan_user_access == 1 %]
+      <form method="POST" action="index.cgi?cgiaction=disableuser">
+        <input type="submit" class="btn btn-primary" value="Disable Userscan">
+      </form>
+    [% ELSE %]
+      <form method="POST" action="index.cgi?cgiaction=enableuser">
+        <input type="submit" class="btn btn-primary" value="Enable Userscan">
+      </form>
+    [% END %]
+  </div>
+
+  <div class="col-md-4">
+    <table class="table">
+      <tr><th>Maldet Version</th><td>[% maldet_version %]</td></tr>
+      <tr><th>Signature Version</th><td>[% sig_version %]</td></tr>
+      <tr><th>Plugin Version</th><td><a href="https://github.com/steadramon/cpaddon-maldet" target="_blank">[% plugin_version %]</a></td></tr>
+    </table>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-4">
+<p>
+    <h4>Scan User</h4>
+    <form method="POST" action="index.cgi?cgiaction=scanuser">
+      <select name="username">
+      [% FOREACH user IN users %]
+       	<option value="[% user %]">[% user %]</option>
+      [% END %]
+      </select>
+      <input type="submit" class="btn btn-primary" value="Go">
+    </form>
+</p>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h2>Recent Reports</h2>
+    <table class="table sortable">
+      <tr><th>Scan ID</th><th>Date</th><th>Files</th><th>Hits</th><th>Cleaned</th><th>Runtime</th></tr>
+    [% FOREACH report IN maldet_reports %]
+      <tr class="[% report.hits ? 'warning':'' %]">
+        <td><a title='View Report' href="index.cgi?cgiaction=viewreport&reportid=[% report.scanid %]">[% report.scanid %]</a></td>
+        <td>[% report.date %]</td>
+        <td>[% report.files %]</td>
+        <td>[% report.hits %]</td>
+        <td>[% report.cleaned %]</td>
+        <td sorttable_customkey="[% report.runtime %]">[% report.runtime %]s</td>
+      </tr>
+    [% END %]
+    </table>
+  </div>
+</div>
+
+[% END %]

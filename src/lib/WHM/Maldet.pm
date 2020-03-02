@@ -1,0 +1,212 @@
+package Whostmgr::Maldet;
+
+use strict;
+use warnings;
+
+use Cpanel ();
+use Cpanel::SafeRun::Dynamic ();
+use Cpanel::Binaries ();
+use Whostmgr::Accounts::List ();
+use Cpanel::SafeRun::Errors;
+use Cpanel::PwCache;
+
+our @config_files = ('conf.maldet', 'ignore_file_ext', 'ignore_inotify', 'ignore_paths', 'ignore_sigs');
+our $lmd_bin = '/usr/local/sbin/maldet';
+our $lmd_dir = '/usr/local/maldetect';
+
+sub configs {
+  return @config_files;
+}
+
+sub get_config {
+  my $config = shift;
+  my %params = map { $_ => 1 } @config_files;
+  if (exists($params{$config})) {
+    my $file = "$lmd_dir/$config";
+    my $str;
+    if (-e $file) {
+      if (open(my $fh, '<', $file)) {
+        {
+          local $/;
+          $str = <$fh>;
+          chomp $str;
+        }
+        close($fh);
+        return {'id' => $config, 'content' => $str};
+      }
+    }
+    return {'filename' => 'hello'.$config, 'content' => $str};
+  }
+  return {'error' => 'Invalid config file'};
+}
+
+sub save_config {
+  my $config = shift;
+  my $config_str = shift;
+
+  my %params = map { $_ => 1 } @config_files;
+  if (exists($params{$config})) {
+    my $file = "$lmd_dir/$config";
+    my $str;
+    if (-e $file) {
+      if (open(my $fh, '>', $file)) {
+        $config_str =~ s/\r\n/\n/g;
+        print $fh $config_str;
+        close($fh);
+      }
+    }
+  }
+}
+
+sub report {
+  my $reportid = shift;
+
+  return {'id' => 'unknown', 'str' => 'Report not found!'} unless $reportid =~ /^[\w\-\.]+$/i;
+
+  my $file = "$lmd_dir/sess/session.$reportid";
+
+  if (-e $file) {
+    my @fileconts;
+    my $str;
+    if (open(my $fh, '<:encoding(UTF-8)', $file)) {
+      {
+       	local $/;
+        $str = <$fh>;
+      }
+      close($fh);
+      return {'id' => $reportid, 'str' => $str};
+    }
+    return {'id' => $reportid, 'str' => 'Error!'};
+  } else {
+    return {'id' => $reportid, 'str' => 'Report not found!'};
+  }
+
+
+}
+
+sub report_list {
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--report', 'list');
+  my @RES = split( /\n/, $result );
+  my @reports;
+  foreach my $line (@RES) {
+    if ($line =~ /^([\s\w:]+)\s+\|\s+SCANID:\s+([^\s]+).*RUNTIME:\s+([0-9]+)s.*FILES:\s+([0-9]+).*HITS:\s+([0-9]+).*CLEANED:\s+([0-9]+)$/) {
+      chomp $1;
+      push @reports, { 'date' => $1, 'scanid' => $2, 'runtime' => $3, 'files' => $4, 'hits' => $5, 'cleaned' => $6 };
+    }
+  }
+
+  \@reports;
+
+}
+
+sub update_sigs {
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--update-sigs');
+  return $result;
+}
+
+sub update_maldet {
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--update-ver');
+  return $result;
+}
+
+sub scan_user {
+  my $user = shift;
+  my $homedir      = Cpanel::PwCache::gethomedir($user);
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '-b', '-a', "$homedir/public_html");
+  return $result;
+}
+
+sub plugin_version {
+  my $file = "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/version.txt";
+  my $content = 'unknown';
+  if (-e $file) {
+    if (open(my $fh, '<:encoding(UTF-8)', $file)) {
+      {
+       	local $/;
+       	$content = <$fh>;
+      }
+      close($fh);
+    }
+  }
+
+  return $content;
+}
+
+sub sig_version {
+  my $file = "$lmd_dir/sigs/maldet.sigs.ver";
+  my $content = 'unknown';
+  if (-e $file) {
+    if (open(my $fh, '<:encoding(UTF-8)', $file)) {
+      {
+        local $/;
+        $content = <$fh>;
+      }
+      close($fh);
+    }
+  }
+
+  return $content;
+}
+
+sub version {
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin);
+  my @RES = split( /\n/, $result );
+  my $version = $RES[0];
+  $version =~ s/^Linux Malware Detect v//g;
+  $version;
+}
+
+sub load_mdconfig {
+  my $file = "$lmd_dir/conf.maldet";
+  my $config;
+  if (-e $file) {
+    if (open(my $fh, '<', $file)) {
+      while (my $row = <$fh>) {
+        next if $row =~ /^#/;
+        next if $row =~ /^$/;
+        if ($row =~ /^([\w_-]+)=\"([^\"]+)\"/) {
+          $config->{$1} = $2;
+        }
+      }
+    }
+  }
+  return $config;
+}
+
+sub save_mdconfig {
+  my $config = shift;
+  my $file = "$lmd_dir/conf.maldet";
+  my $str;
+  if (-e $file) {
+    if (open(my $fh, '<', $file)) {
+      while (my $row = <$fh>) {
+        if ($row =~ /^([\w_-]+)=/) {
+          my $nval = $config->{$1};
+          $row =~ s/=\"[^\"]+\"/=\"$nval\"/;
+        }
+        $str .= $row;
+      }
+      close($fh);
+    }
+  }
+
+  if (open(my $fh, '>', $file)) {
+    print $fh $str;
+    close($fh);
+  }  
+}
+
+sub enable_userscan {
+  my $config = Whostmgr::Maldet::load_mdconfig();
+  $config->{'scan_user_access'} = 1;
+  Whostmgr::Maldet::save_mdconfig($config);
+  Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--mkpubpaths');
+}
+
+sub disable_userscan {
+  my $config = Whostmgr::Maldet::load_mdconfig();
+  $config->{'scan_user_access'} = 0;
+  Whostmgr::Maldet::save_mdconfig($config);
+}
+
+1;

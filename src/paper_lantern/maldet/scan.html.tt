@@ -1,0 +1,37 @@
+[% SET CPANEL.CPVAR.dprefix = "../" %]
+[%
+USE Uapi;
+USE JSON;
+
+IF CPANEL.feature('maldet');
+  SET maldet_reports = Uapi.exec('Maldet', 'scan_home');
+END;
+
+%]
+
+[% js_code = PROCESS js_block %]
+
+[% WRAPPER '_assets/master.html.tt'
+    page_title = locale.maketext('Linux Malware Detect')
+    page_js = js_code
+    app_key = 'maldet'
+-%]
+<div class="body-content">
+    <h1>Starting scan...</h1>
+    <p>Please leave this window open whilst scanning.</p>
+    <h2 id="scan_status">Scanning.</h2>
+</div>
+
+[% BLOCK js_block %]
+<script>
+    setInterval(function(){
+      document.getElementById("scan_status").innerHTML += '.';
+    }, 1000);
+
+    window.addEventListener('load', function () {
+      window.location.replace("latest.html");
+    });
+</script>
+[% END #js_block %]
+
+[% END #wrapper %]

@@ -1,0 +1,108 @@
+[% SET CPANEL.CPVAR.dprefix = "../" %]
+[%
+USE Uapi;
+USE JSON;
+
+SET maldet_report = Uapi.exec('Maldet', 'get_report', { report_id = FORM.report_id } );
+%]
+[% WRAPPER '_assets/master.html.tt'
+    page_title = locale.maketext('Linux Malware Detect')
+    app_key = 'maldet'
+-%]
+<div class="body-content">
+[% IF maldet_report.data.err %]
+      <div class="alert alert-warning" role="alert">[% maldet_report.data.err %]</div>
+[% END %]
+[% IF maldet_report.data.id %]
+    <a href="index.html" class="btn btn-primary">Back</a>
+    <h1>Scan Report - [% maldet_report.data.id %]</h1>
+    [% IF maldet_report.data.hits %]
+      <div class="alert alert-warning" role="alert">Malware files were found during the scan.</div>
+    [% ELSE %]
+      <div class="callout callout-info">
+        The scan finished successfully. No malware files were found.
+      </div>
+    [% END %]
+    <table class="table">
+      <tr>
+        <th>Scan ID</th><td>[% maldet_report.data.id %]</td>
+        <th>Path</th><td>[% maldet_report.data.path %]</td>
+      </tr>
+      <tr>
+        <th>Start</th><td>[% maldet_report.data.start_str %]</td>
+        <th>End</th><td>[% maldet_report.data.end_str %]</td>
+      </tr>
+      <tr>
+        <th>Timing</th><td>[% maldet_report.data.scan %]s (find: [% maldet_report.data.find %]s)</td>
+        <th>Files</th><td>[% maldet_report.data.files %]</td>
+      </tr>
+      <tr>
+        <th>Hits</th><td>[% maldet_report.data.hits %]</td>
+        <th>Cleaned</th><td>[% maldet_report.data.cleaned %]</td>
+      </tr>
+    </table>
+[% END %]
+[% IF maldet_report.data.hits %]
+<div class="callout callout-info">
+You can perform actions to the files found above. <b>Be careful</b> that this may render your website unusable.
+</div>
+
+<div class="row">
+<div class="col-md-3">
+<h4>Quarantine</h4>
+<p>Quarantine the detected files</p>
+<form action="action.html">
+  <input type="hidden" value="[% maldet_report.data.id %]" name="report_id">
+  <input type="hidden" value="quarantine" name="action">
+  <input type="submit" value="Quarantine" class="btn btn-warning">
+</form>
+</div>
+<div class="col-md-3">
+<h4>Restore</h4>
+<p>Restore any quarantined files</p>
+<form action="action.html">
+  <input type="hidden" value="[% maldet_report.data.id %]" name="report_id">
+  <input type="hidden" value="restore" name="action">
+  <input type="submit" value="Restore" class="btn btn-danger">
+</form>
+</div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <h2>Files</h2>
+    <table class="table">
+        <tr><th>File</th><th>Signature</th><th>State</th><th>Action</th></tr>
+        [% FOREACH file IN maldet_report.data.file_arr %]
+          [% IF file.exists %]
+          <tr><td>[% file.file %]</td><td>[% file.signature %]</td><td>Live</td><td>
+                <form action="action.html">
+                  <input type="hidden" value="[% maldet_report.data.id %]" name="report_id">
+                  <input type="hidden" value="quarantine_file" name="action">
+                  <input type="hidden" value="[% file.file %]" name="file">
+                  <input type="submit" value="Quarantine" class="btn btn-warning">
+                </form>
+          </td></tr>
+          [% ELSIF file.quarantine %]
+          <tr><td>[% file.file %]</td><td>[% file.signature %]</td><td>Quarantined</td><td>
+                <form action="action.html">
+                  <input type="hidden" value="[% maldet_report.data.id %]" name="report_id">
+                  <input type="hidden" value="restore_file" name="action">
+                  <input type="hidden" value="[% file.file %]" name="file">
+                  <input type="submit" value="Restore" class="btn btn-danger">
+                </form>
+          </td></tr>
+          [% ELSE %]
+          <tr><td>[% file.file %]</td><td>[% file.signature %]</td><td>Unknown</td><td>
+                  <input type="submit" value="Unknown" class="btn btn-primary" disabled>
+          </td></tr>
+          [% END %]
+        [% END %]
+        </table>
+        </td>
+        </tr>
+    </table>
+  </div>
+</div>
+[% END %]
+</div>
+[% END #wrapper %]

@@ -1,0 +1,26 @@
+[% SET CPANEL.CPVAR.dprefix = "../" %]
+[%
+USE Uapi;
+USE JSON;
+
+IF CPANEL.feature('maldet');
+  IF FORM.action == 'quarantine';
+    SET maldet_report = Uapi.exec('Maldet', 'quarantine', { report_id = FORM.report_id });
+  END;
+
+  IF FORM.action == 'restore';
+    SET maldet_report = Uapi.exec('Maldet', 'restore', { report_id = FORM.report_id });
+  END;
+
+  IF FORM.action == 'quarantine_file';
+    SET maldet_report = Uapi.exec('Maldet', 'quarantine_file', { report_id = FORM.report_id, file = FORM.file });
+  END;
+
+  IF FORM.action == 'restore_file';
+    SET maldet_report = Uapi.exec('Maldet', 'restore_file', { report_id = FORM.report_id, file = FORM.file });
+  END;
+END;
+%]
+<script>
+  window.location.replace("report.html?report_id=[% FORM.report_id %]");
+</script>
