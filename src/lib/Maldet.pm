@@ -8,16 +8,14 @@ use Cpanel::SafeRun::Errors ();
 use Cpanel::SafeDir::MK ();
 use Cpanel::PwCache ();
 use Cpanel::ForkAsync ();
-use Cpanel::SafeFile ();
 
-use File::Basename;
 use File::Copy;
 use Date::Parse;
 use Time::HiRes;
 use IO::Handle;
 
-our $lmd_bin = '/usr/local/sbin/maldet';
-our $lmd_dir = '/usr/local/maldetect';
+our $LMD_BIN = '/usr/local/sbin/maldet';
+our $LMD_DIR = '/usr/local/maldetect';
 our $QUAR_PATH = '/maldet/quarantine';
 our $LOG_PATH = '/.maldet/logs';
 
@@ -88,9 +86,11 @@ sub scan_home {
   } else {
     my $reports = Cpanel::Plugins::Maldet::report_list();
     my $last_scan = @{$reports}[0];
-    my $date = str2time($last_scan->{'date'});
-    if (($date + 3600) > time() ) {
-      return {};
+    if ($last_scan) {
+      my $date = str2time($last_scan->{'date'});
+      if (($date + 3600) > time() ) {
+        return {};
+      }
     }
 
     $child_time = time();
@@ -100,7 +100,7 @@ sub scan_home {
       print $lock_fh $$;
       close($lock_fh);
       my ( $logfile, $log_fh ) = Cpanel::Plugins::Maldet::log_file();
-      my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '-a', $scandir);
+      my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '-a', $scandir);
       print $log_fh $result;
       close($log_fh);
       unlink $lockfile;
@@ -116,7 +116,7 @@ sub report {
   return {'id' => 'unknown', 'str' => 'Report not found!', 'err' => 'Report not found!'} unless $reportid =~ /^[\d\-\.]+$/i;
 
   my $user = $Cpanel::user;
-  my $file = "$lmd_dir/pub/$user/sess/session.$reportid";
+  my $file = "$LMD_DIR/pub/$user/sess/session.$reportid";
 
   if (-e $file) {
     my @fileconts;
@@ -190,7 +190,7 @@ sub quarantine {
 }
 
 sub report_list {
-  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--report', 'list');
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '--report', 'list');
   my @RES = split( /\n/, $result );
   my @reports;
   foreach my $line (@RES) {
@@ -273,7 +273,7 @@ sub enabled {
 }
 
 sub get_config {
-  my $file = "$lmd_dir/conf.maldet";
+  my $file = "$LMD_DIR/conf.maldet";
   my $config;
   if (-e $file) {
     if (open(my $fh, '<', $file)) {

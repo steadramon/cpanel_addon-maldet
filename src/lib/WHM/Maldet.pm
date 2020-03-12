@@ -11,8 +11,8 @@ use Cpanel::SafeRun::Errors;
 use Cpanel::PwCache;
 
 our @config_files = ('conf.maldet', 'ignore_file_ext', 'ignore_inotify', 'ignore_paths', 'ignore_sigs');
-our $lmd_bin = '/usr/local/sbin/maldet';
-our $lmd_dir = '/usr/local/maldetect';
+our $LMD_BIN = '/usr/local/sbin/maldet';
+our $LMD_DIR = '/usr/local/maldetect';
 
 sub configs {
   return @config_files;
@@ -22,7 +22,7 @@ sub get_config {
   my $config = shift;
   my %params = map { $_ => 1 } @config_files;
   if (exists($params{$config})) {
-    my $file = "$lmd_dir/$config";
+    my $file = "$LMD_DIR/$config";
     my $str;
     if (-e $file) {
       if (open(my $fh, '<', $file)) {
@@ -46,7 +46,7 @@ sub save_config {
 
   my %params = map { $_ => 1 } @config_files;
   if (exists($params{$config})) {
-    my $file = "$lmd_dir/$config";
+    my $file = "$LMD_DIR/$config";
     my $str;
     if (-e $file) {
       if (open(my $fh, '>', $file)) {
@@ -63,7 +63,7 @@ sub report {
 
   return {'id' => 'unknown', 'str' => 'Report not found!'} unless $reportid =~ /^[\w\-\.]+$/i;
 
-  my $file = "$lmd_dir/sess/session.$reportid";
+  my $file = "$LMD_DIR/sess/session.$reportid";
 
   if (-e $file) {
     my @fileconts;
@@ -85,7 +85,7 @@ sub report {
 }
 
 sub report_list {
-  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--report', 'list');
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '--report', 'list');
   my @RES = split( /\n/, $result );
   my @reports;
   foreach my $line (@RES) {
@@ -100,19 +100,19 @@ sub report_list {
 }
 
 sub update_sigs {
-  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--update-sigs');
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '--update-sigs');
   return $result;
 }
 
 sub update_maldet {
-  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--update-ver');
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '--update-ver');
   return $result;
 }
 
 sub scan_user {
   my $user = shift;
   my $homedir      = Cpanel::PwCache::gethomedir($user);
-  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '-b', '-a', "$homedir/public_html");
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '-b', '-a', "$homedir/public_html");
   return $result;
 }
 
@@ -133,7 +133,7 @@ sub plugin_version {
 }
 
 sub sig_version {
-  my $file = "$lmd_dir/sigs/maldet.sigs.ver";
+  my $file = "$LMD_DIR/sigs/maldet.sigs.ver";
   my $content = 'unknown';
   if (-e $file) {
     if (open(my $fh, '<:encoding(UTF-8)', $file)) {
@@ -149,7 +149,7 @@ sub sig_version {
 }
 
 sub version {
-  my $result = Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin);
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN);
   my @RES = split( /\n/, $result );
   my $version = $RES[0];
   $version =~ s/^Linux Malware Detect v//g;
@@ -157,7 +157,7 @@ sub version {
 }
 
 sub load_mdconfig {
-  my $file = "$lmd_dir/conf.maldet";
+  my $file = "$LMD_DIR/conf.maldet";
   my $config;
   if (-e $file) {
     if (open(my $fh, '<', $file)) {
@@ -175,7 +175,7 @@ sub load_mdconfig {
 
 sub save_mdconfig {
   my $config = shift;
-  my $file = "$lmd_dir/conf.maldet";
+  my $file = "$LMD_DIR/conf.maldet";
   my $str;
   if (-e $file) {
     if (open(my $fh, '<', $file)) {
@@ -200,7 +200,7 @@ sub enable_userscan {
   my $config = Whostmgr::Maldet::load_mdconfig();
   $config->{'scan_user_access'} = 1;
   Whostmgr::Maldet::save_mdconfig($config);
-  Cpanel::SafeRun::Errors::saferunallerrors($lmd_bin, '--mkpubpaths');
+  Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '--mkpubpaths');
 }
 
 sub disable_userscan {
