@@ -10,5 +10,5 @@ Install with the following:
 
   * wget https://github.com/steadramon/cpanel_addon-maldet/archive/X.X.X.zip -o cpmaldet.zip
   * unzip cpmaldet.zip
-  * cd cpmaldet 
+  * cd cpanel_addon-maldet 
   * ./install
