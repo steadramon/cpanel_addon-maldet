@@ -8,7 +8,7 @@ Download the latest release here: https://github.com/steadramon/cpanel_addon-mal
 
 Install with the following:
 
-  * wget https://github.com/steadramon/cpanel_addon-maldet/archive/X.X.X.zip -o cpmaldet.zip
+  * wget https://github.com/steadramon/cpanel_addon-maldet/archive/X.X.X.zip -O cpmaldet.zip
   * unzip cpmaldet.zip
-  * cd cpanel_addon-maldet 
+  * cd cpanel_addon-maldet*
   * ./install
