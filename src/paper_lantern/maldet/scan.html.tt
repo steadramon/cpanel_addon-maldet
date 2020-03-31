@@ -4,7 +4,10 @@ USE Uapi;
 USE JSON;
 
 IF CPANEL.feature('maldet');
-  SET maldet_reports = Uapi.exec('Maldet', 'scan_home');
+  SET maldet_running = Uapi.exec('Maldet', 'running');
+  IF maldet_running.data == 0;
+    SET maldet_reports = Uapi.exec('Maldet', 'scan_home');
+  END;
 END;
 
 %]

@@ -4,8 +4,13 @@ USE Uapi;
 USE JSON;
 
 SET maldet_report = Uapi.exec('Maldet', 'latest');
+SET maldet_running = Uapi.exec('Maldet', 'running');
 
 %]
 <script>
+[% IF maldet_report.data.scanid && maldet_running.data == 0 %]
   window.location.replace("report.html?report_id=[% maldet_report.data.scanid %]");
+[% ELSE %]
+  window.location.replace("index.html");
+[% END %]
 </script>

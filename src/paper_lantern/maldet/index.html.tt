@@ -54,4 +54,9 @@ SET maldet_recent = Uapi.exec('Maldet', 'recent');
     <h2>Maldet user scanning is not enabled on this server.<h2>
 </div>
 [% END %]
+[% IF maldet_running.data == 1 %]
+<script>
+ setTimeout(function(){ location.reload(); }, 10000);
+</script>
+[% END %]
 [% END #wrapper %]
