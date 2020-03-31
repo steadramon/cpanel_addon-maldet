@@ -113,6 +113,15 @@ sub scan_home {
 
 sub running {
   my $lockfile = "$Cpanel::homedir/.maldet.scan";
+  if ( -e $lockfile ) {
+    $child_time = (stat($lockfile))[9];
+    if (time() < ($child_time + 86400)) {
+      return 1;
+    }
+    unlink $lockfile;
+  }
+  return 0;
+
   return ( -e $lockfile ) || 0;
 }
 
