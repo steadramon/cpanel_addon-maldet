@@ -111,6 +111,23 @@ sub scan_home {
   return { 'pid' => $child_pid, 'time' => $child_time };
 }
 
+sub running {
+  my $lockfile = "$Cpanel::homedir/.maldet.scan";
+  return ( -e $lockfile ) || 0;
+}
+
+sub recent {
+  my $reports = Cpanel::Plugins::Maldet::report_list();
+  my $last_scan = @{$reports}[0];
+  if ($last_scan) {
+    my $date = str2time($last_scan->{'date'});
+    if (($date + 3600) > time() ) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 sub report {
   my $reportid = shift;
   return {'id' => 'unknown', 'str' => 'Report not found!', 'err' => 'Report not found!'} unless $reportid =~ /^[\d\-\.]+$/i;

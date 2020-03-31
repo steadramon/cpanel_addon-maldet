@@ -13,6 +13,20 @@ sub enabled {
   return 1
 }
 
+sub running {
+  my ( $args, $result ) = @_;
+  my $data = Cpanel::Plugins::Maldet::running();
+  $result->data($data);
+  return 1
+}
+
+sub recent {
+  my ( $args, $result ) = @_;
+  my $data = Cpanel::Plugins::Maldet::recent();
+  $result->data($data);
+  return 1
+}
+
 sub latest {
   my ( $args, $result ) = @_;
   my $data = Cpanel::Plugins::Maldet::latest();
