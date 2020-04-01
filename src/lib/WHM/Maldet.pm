@@ -14,6 +14,7 @@ use Config::Tiny;
 our @config_files = ('conf.maldet', 'ignore_file_ext', 'ignore_inotify', 'ignore_paths', 'ignore_sigs');
 our $LMD_BIN = '/usr/local/sbin/maldet';
 our $LMD_DIR = '/usr/local/maldetect';
+our $LMD_CONF = "$LMD_DIR/conf.maldet";
 
 sub configs {
   return @config_files;
@@ -158,26 +159,23 @@ sub version {
 }
 
 sub load_mdconfig {
-  my $file = "$LMD_DIR/conf.maldet";
   my $config = Config::Tiny->new;
-  $config = Config::Tiny->read( $file );
+  $config = Config::Tiny->read( $LMD_CONF );
   return $config->{_};
 }
 
 sub enable_userscan {
-  my $file = "$LMD_DIR/conf.maldet";
   my $config = Config::Tiny->new;
-  $config = Config::Tiny->read( $file );
+  $config = Config::Tiny->read( $LMD_CONF );
   $config->{_}->{'scan_user_access'} = 1;
-  $config->write( $file );
+  $config->write( $LMD_CONF );
 }
 
 sub disable_userscan {
-  my $file = "$LMD_DIR/conf.maldet";
   my $config = Config::Tiny->new;
-  $config = Config::Tiny->read( $file );
+  $config = Config::Tiny->read( $LMD_CONF );
   $config->{_}->{'scan_user_access'} = 0;
-  $config->write( $file );
+  $config->write( $LMD_CONF );
 }
 
 1;
