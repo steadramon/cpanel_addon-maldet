@@ -298,7 +298,7 @@ sub parse_report {
 sub enabled {
   my $config = Config::Tiny->new;
   $config = Config::Tiny->read( $LMD_CONF );
-  return $config->{_}->{scan_user_access} || 0;;
+  return "$config->{_}->{scan_user_access}" || '0';
 }
 
 1;
