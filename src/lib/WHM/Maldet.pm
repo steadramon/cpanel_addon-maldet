@@ -9,6 +9,7 @@ use Cpanel::Binaries ();
 use Whostmgr::Accounts::List ();
 use Cpanel::SafeRun::Errors;
 use Cpanel::PwCache;
+use Config::Tiny;
 
 our @config_files = ('conf.maldet', 'ignore_file_ext', 'ignore_inotify', 'ignore_paths', 'ignore_sigs');
 our $LMD_BIN = '/usr/local/sbin/maldet';
@@ -158,55 +159,25 @@ sub version {
 
 sub load_mdconfig {
   my $file = "$LMD_DIR/conf.maldet";
-  my $config;
-  if (-e $file) {
-    if (open(my $fh, '<', $file)) {
-      while (my $row = <$fh>) {
-        next if $row =~ /^#/;
-        next if $row =~ /^$/;
-        if ($row =~ /^([\w_-]+)=\"([^\"]+)\"/) {
-          $config->{$1} = $2;
-        }
-      }
-    }
-  }
-  return $config;
-}
-
-sub save_mdconfig {
-  my $config = shift;
-  my $file = "$LMD_DIR/conf.maldet";
-  my $str;
-  if (-e $file) {
-    if (open(my $fh, '<', $file)) {
-      while (my $row = <$fh>) {
-        if ($row =~ /^([\w_-]+)=/) {
-          my $nval = $config->{$1};
-          $row =~ s/=\"[^\"]+\"/=\"$nval\"/;
-        }
-        $str .= $row;
-      }
-      close($fh);
-    }
-  }
-
-  if (open(my $fh, '>', $file)) {
-    print $fh $str;
-    close($fh);
-  }  
+  my $config = Config::Tiny->new;
+  $config = Config::Tiny->read( $file );
+  return $config->{_};
 }
 
 sub enable_userscan {
-  my $config = Whostmgr::Maldet::load_mdconfig();
-  $config->{'scan_user_access'} = 1;
-  Whostmgr::Maldet::save_mdconfig($config);
-  Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '--mkpubpaths');
+  my $file = "$LMD_DIR/conf.maldet";
+  my $config = Config::Tiny->new;
+  $config = Config::Tiny->read( $file );
+  $config->{_}->{'scan_user_access'} = 1;
+  $config->write( $file );
 }
 
 sub disable_userscan {
-  my $config = Whostmgr::Maldet::load_mdconfig();
-  $config->{'scan_user_access'} = 0;
-  Whostmgr::Maldet::save_mdconfig($config);
+  my $file = "$LMD_DIR/conf.maldet";
+  my $config = Config::Tiny->new;
+  $config = Config::Tiny->read( $file );
+  $config->{_}->{'scan_user_access'} = 0;
+  $config->write( $file );
 }
 
 1;
