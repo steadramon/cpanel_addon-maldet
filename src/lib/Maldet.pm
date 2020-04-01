@@ -13,9 +13,11 @@ use File::Copy;
 use Date::Parse;
 use Time::HiRes;
 use IO::Handle;
+use Config::Tiny;
 
 our $LMD_BIN = '/usr/local/sbin/maldet';
 our $LMD_DIR = '/usr/local/maldetect';
+our $LMD_CONF = "$LMD_DIR/conf.maldet";
 our $QUAR_PATH = '/maldet/quarantine';
 our $LOG_PATH = '/.maldet/logs';
 
@@ -294,25 +296,9 @@ sub parse_report {
 }
 
 sub enabled {
-  my $config = Cpanel::Plugins::Maldet::get_config();
-  return $config->{scan_user_access} || 0;
-}
-
-sub get_config {
-  my $file = "$LMD_DIR/conf.maldet";
-  my $config;
-  if (-e $file) {
-    if (open(my $fh, '<', $file)) {
-      while (my $row = <$fh>) {
-        next if $row =~ /^#/;
-        next if $row =~ /^$/;
-        if ($row =~ /^([a-z_]+)=\"([^\"]+)\"/) {
-          $config->{$1} = $2;
-        }
-      }
-    }
-  }
-  return $config;
+  my $config = Config::Tiny->new;
+  $config = Config::Tiny->read( $LMD_CONF );
+  return $config->{_}->{scan_user_access} || 0;;
 }
 
 1;
