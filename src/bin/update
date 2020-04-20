@@ -13,6 +13,8 @@ if [ "$local_version" == "$remote_version" ]; then
 else
   echo "Updating plugin";
   workdir=`mktemp -d /root/XXXXXXX`
+  trap '/usr/bin/rm -f $workdir' 0
+
   cd $workdir;
 
   wget $url
