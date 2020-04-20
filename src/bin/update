@@ -13,7 +13,7 @@ if [ "$local_version" == "$remote_version" ]; then
 else
   echo "Updating plugin";
   workdir=`mktemp -d /root/XXXXXXX`
-  trap '/usr/bin/rm -f $workdir' 0
+  trap "rm -rf $workdir" 0
 
   cd $workdir;
 
@@ -21,4 +21,5 @@ else
   unzip $remote_version.zip
   cd cpanel_addon-maldet-$remote_version
   ./install
+  cd
 fi
