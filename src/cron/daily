@@ -8,7 +8,7 @@ trap "rm -rf $dir" EXIT
 # sleep for random value to give upstream a bit of headroom
 sleep $(echo $RANDOM | cut -c1-3) >> /dev/null 2>&1
 
-/var/cpanel/addons/maldet/update
+/var/cpanel/addons/maldet/bin/update
 
 # if were running inotify monitoring, send daily hit summary
 if [ "$(ps -A --user root -o "comm" | grep inotifywait)" ]; then
