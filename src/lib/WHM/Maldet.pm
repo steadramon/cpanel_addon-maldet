@@ -10,6 +10,7 @@ use Whostmgr::Accounts::List ();
 use Cpanel::SafeRun::Errors;
 use Cpanel::PwCache;
 use Config::Tiny;
+use Cpanel::Config::LoadWwwAcctConf ();
 
 our @config_files = ('conf.maldet', 'ignore_file_ext', 'ignore_inotify', 'ignore_paths', 'ignore_sigs');
 our $LMD_BIN = '/usr/local/sbin/maldet';
@@ -114,7 +115,22 @@ sub update_maldet {
 sub scan_user {
   my $user = shift;
   my $homedir      = Cpanel::PwCache::gethomedir($user);
-  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '-b', '-a', "$homedir/public_html");
+  if ($homedir) {
+    my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '-b', '-a', "$homedir/public_html");
+    return $result;
+  }
+}
+
+sub scan_all_recent {
+  my $recent = shift;
+  $recent = int( $recent )|| 2;
+
+  my $cref = Cpanel::Config::LoadWwwAcctConf::loadwwwacctconf();
+  my $homematch = ( defined $cref->{'HOMEMATCH'} ? $cref->{'HOMEMATCH'} : ( -d '/home' ? '/home' : '/usr/home' ) );
+  $homematch =~ s/\*//;
+  $homematch =~ s/^([^\/].*)/\/$1/;
+
+  my $result = Cpanel::SafeRun::Errors::saferunallerrors($LMD_BIN, '-b', '-r', "$homematch?/?/public_html", $recent);
   return $result;
 }
 

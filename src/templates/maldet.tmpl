@@ -80,6 +80,24 @@ Use the panels below to configure LMD.
       </select>
       <input type="submit" class="btn btn-primary" value="Go">
     </form>
+    <p><small>Scan user public_html directory</small></p>
+  </p>
+</div>
+  <div class="col-md-4">
+<p>
+    <h4>Scan All Users</h4>
+    <form method="POST" action="index.cgi?cgiaction=scan_all_recent">
+      <select name="recent">
+        <option value="2">2 days</option>
+        <option value="3">3 days</option>
+        <option value="4">4 days</option>
+        <option value="5">5 days</option>
+        <option value="6">6 days</option>
+        <option value="7">7 days</option>
+      </select>
+      <input type="submit" class="btn btn-primary" value="Go">
+    </form>
+    <p><small>Scan files modified recently</small></p>
 </p>
   </div>
 </div>

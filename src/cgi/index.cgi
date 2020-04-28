@@ -120,7 +120,16 @@ if ( $FORM{'cgiaction'} eq '' ) {
     "print"         => 1,
     "output"        => $output,
   });
+} elsif ( $FORM{'cgiaction'} eq 'scan_all_recent') {
+  my $output = Whostmgr::Maldet::scan_all_recent($FORM{'recent'});
 
+  Cpanel::Template::process_template(
+  'whostmgr',
+  {
+    "template_file" => "maldet/start_scan.tmpl",
+    "print"         => 1,
+    "output"        => $output,
+  });
 } elsif ( $FORM{'cgiaction'} eq 'enableuser' ) {
   Whostmgr::Maldet::enable_userscan();
   Whostmgr::HTMLInterface::redirect('index.cgi');
