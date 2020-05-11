@@ -51,7 +51,7 @@ SET maldet_recent = Uapi.exec('Maldet', 'recent');
 </div>
 [% ELSE %]
 <div class="body-content">
-    <h2>Maldet user scanning is not enabled on this server.<h2>
+    <h3>User scanning is not enabled on this server, this can be enabled by the administrator.</h3>
 </div>
 [% END %]
 [% IF maldet_running.data == 1 %]
