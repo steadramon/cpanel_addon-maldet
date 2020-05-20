@@ -9,7 +9,9 @@ else
 fi
 
 if [ "$local_version" == "$remote_version" ]; then
-  echo "cpanel_addon-maldet is up to date";
+  if [ ! -z "$PS1" ]; then
+    echo "cpanel_addon-maldet is up to date";
+  fi
 else
   echo "Updating plugin";
   workdir=`mktemp -d /root/XXXXXXX`
