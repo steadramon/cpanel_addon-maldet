@@ -1,0 +1,7 @@
+if [ -d "/usr/local/cpanel" ] && [ -x "/var/cpanel/addons/maldet/bin/homematch" ]; then
+        #cpanel
+        HOMEMATCH=`/var/cpanel/addons/maldet/bin/homematch`
+        /usr/local/maldetect/maldet -b -r $HOMEMATCH?/?/public_html 2 >> /dev/null 2>&1
+fi
+
+/var/cpanel/addons/maldet/bin/update

@@ -1,6 +1,7 @@
 #!/usr/local/cpanel/3rdparty/bin/perl
 
 use Cpanel::Version ();
+use Config::Tiny;
 
 if ( $Cpanel::Version::MAJORVERSION < 11.78 ) {
     print "This addon requires 11.78 or later.\n";
@@ -35,7 +36,7 @@ mkdir( "/usr/local/cpanel/whostmgr/docroot/templates/maldet/", 0700 );
 
 install( "-o", "root", "-g", "wheel", "-m" . "0700", "src/cgi/index.cgi", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/index.cgi" );
 install( "-o", "root", "-g", "wheel", "-m" . "0600", "version.txt", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/version.txt" );
-install( "-o", "root", "-g", "wheel", "-m" . "0755", "src/cron/daily", "/etc/cron.daily/cp-maldet" );
+install( "-o", "root", "-g", "wheel", "-m" . "0755", "src/cron/custom.cron", "/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/custom.cron");
 
 install( "-o", "root", "-g", "wheel", "-m" . "0400", "src/templates/maldet.tmpl", "/usr/local/cpanel/whostmgr/docroot/templates/maldet/index.tmpl" );
 install( "-o", "root", "-g", "wheel", "-m" . "04600", "src/templates/update.tmpl", "/usr/local/cpanel/whostmgr/docroot/templates/maldet/update.tmpl" );
@@ -62,6 +63,15 @@ install( "-o", "root", "-g", "wheel", "-m" . "0600", "icon/ico-maldet.png", "/us
 print "cPanel Linux Malware Detect installed into WHM.\n";
 
 system "/usr/local/cpanel/scripts/install_plugin", "appconfig/maldet.tar.gz";
+
+
+my $config = Config::Tiny->new;
+my $config_file = "/usr/local/maldetect/conf.maldet.cron";
+$config = Config::Tiny->read( $config_file );
+if (!defined $config->{_}->{'cron_custom_exec'}) {
+  $config->{_}->{'cron_custom_exec'} = '/usr/local/cpanel/whostmgr/docroot/cgi/addons/maldet/custom.cron';
+  $config->write( $config_file );
+}
 
 exit(0);
 
