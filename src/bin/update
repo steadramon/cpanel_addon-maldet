@@ -8,14 +8,10 @@ else
   local_version='unknown';
 fi
 
-if [ -e "/etc/cron.daily/cp-maldet" ]; then
-  rm /etc/cron.daily/cp-maldet
-fi
-
 if [ "$local_version" == "$remote_version" ]; then
-  if [ -z "$PS1" ]; then
-    echo "cpanel_addon-maldet is up to date";
-  fi
+  case $- in
+  *i*)   echo "cpanel_addon-maldet is up to date";
+  esac
 else
   echo "Updating plugin";
   workdir=`mktemp -d /root/XXXXXXX`
