@@ -17,7 +17,7 @@ SET maldet_recent = Uapi.exec('Maldet', 'recent');
     page_title = locale.maketext('Linux Malware Detect')
     app_key = 'maldet',
 -%]
-[% IF maldet_enabled.data == 1 %]
+[% IF maldet_enabled.data == '1' %]
 <div class="body-content">
     <p>Scan your home directory for Linux based malware.</p>
     [% IF CPANEL.feature('maldet'); %]
