@@ -183,14 +183,14 @@ sub load_mdconfig {
 sub enable_userscan {
   my $config = Config::Tiny->new;
   $config = Config::Tiny->read( $LMD_CONF );
-  $config->{_}->{'scan_user_access'} = 1;
+  $config->{_}->{'scan_user_access'} = '"1"';
   $config->write( $LMD_CONF );
 }
 
 sub disable_userscan {
   my $config = Config::Tiny->new;
   $config = Config::Tiny->read( $LMD_CONF );
-  $config->{_}->{'scan_user_access'} = 0;
+  $config->{_}->{'scan_user_access'} = '"0"';
   $config->write( $LMD_CONF );
 }
 
