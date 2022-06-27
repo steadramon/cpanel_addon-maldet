@@ -3,11 +3,6 @@
 use Cpanel::Version ();
 use Config::Tiny;
 
-if ( $Cpanel::Version::MAJORVERSION < 11.78 ) {
-    print "This addon requires 11.78 or later.\n";
-    exit(1);
-}
-
 mkdir( "/var/cpanel/addons", 0755 );
 mkdir( "/var/cpanel/addons/maldet", 0700 );
 
